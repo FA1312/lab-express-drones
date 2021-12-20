@@ -32,31 +32,25 @@ router.post("/drones/create", (req, res, next) => {
     });
 });
 
-router.get("/drones/:id/edit", (req, res, next) => {
-  const { id } = req.params;
-  Drone.findById()
-    .then((drone) => {
-      console.log("drone", drone);
-      res.render("drones/update-form.hbs", { drone });
-    })
-    .catch((err) => {
-      console.log("Error", err);
-      res.send("Error al editar el drone");
-    });
+router.get("/drones/:id/edit", async (req, res, next) => {
+  try {
+    const droneId = req.params.id;
+    const droneToEdit = await Drone.findById(droneId);
+    res.render("drones/update-form.hbs", { droneToEdit });
+  } catch (error) {
+    console.error(`Error while routing to update-form-hbs: ${error}`);
+  }
 });
 
-router.post("/drones/:id/edit", (req, res, next) => {
-  const { id } = req.params;
-  const { name, propellers, maxSpeed, ...rest } = req.body;
-  Drone.findByIdAndUpdate(id, { name, propellers, maxSpeed })
-    .then((drone) => {
-      console.log("Drone", drone);
-      res.redirect("/drones");
-    })
-    .catch((err) => {
-      console.log("Error", err);
-      res.send("Error al editar el drone");
-    });
+router.post("/drones/:id/edit", async (req, res, next) => {
+  try {
+    const droneId = req.params.id;
+    const newDrone = req.body;
+    const droneToEdit = await Drone.findByIdAndUpdate(droneId, newDrone);
+    res.redirect("/drones");
+  } catch (error) {
+    console.error("Error while updating drone", error);
+  }
 });
 
 router.post("/drones/:id/delete", (req, res, next) => {
